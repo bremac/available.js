@@ -23,6 +23,12 @@
             alert(JSON.stringify(availableIntervals));
           }
         });
+        available.deserialize([
+          {dayId: 2, startHour: 10, endHour: 17},
+          {dayId: 3, startHour: 10, endHour: 13},
+          {dayId: 3, startHour: 14, endHour: 17},
+          {dayId: 4, startHour: 14, endHour: 17}
+        ]);
       });
     </script>
   </head>
