@@ -5,7 +5,8 @@
 @cell-hover-color: #eee;
 @row-hover-color: #f9f9f9;
 @noon-color: #888;
-@cell-available-color: #FAF3C3;
+@cell-available-color: #FCF6CA;
+@cell-tentative-color: #FEFBE6;
 
 .no-select {
     -webkit-touch-callout: none;
@@ -47,6 +48,15 @@ table.available {
     }
     .available-interval {
         background: @cell-available-color;
+    }
+    .tentative-interval {
+        background: @cell-tentative-color;
+    }
+    .tentative-interval:hover {
+        background: @cell-available-color;
+    }
+    .available-interval.tentative-interval:hover {
+        background: @background-color;
     }
     .pre-noon td {
         border-bottom-color: @noon-color;
