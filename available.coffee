@@ -76,6 +76,11 @@ class Available
         @cells[x] ?= {}
         @cells[x][startHour] = cell
 
+    $(document).keydown (e) =>
+      if e.keyCode == 27 and @activeCell != null
+        @clearTentative()
+        @activeCell = null
+
     null
 
   addFooter: ($el) ->
