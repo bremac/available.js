@@ -168,7 +168,6 @@ class Available
         cell = @cells[x][hour]
         @markActive(cell, true)
 
-    @triggerChanged()
     null
 
 
