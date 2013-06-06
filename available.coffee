@@ -52,7 +52,7 @@ class Available
       if startHour == 12
         $tr.addClass("post-noon")
 
-      $("<td>#{twelveHourTime(startHour)}</td>").appendTo($tr)
+      $("<td><span>#{twelveHourTime(startHour)}</span></td>").appendTo($tr)
 
       for _, x in DAYS
         cell =
@@ -86,7 +86,7 @@ class Available
   addFooter: ($el) ->
     endHour = @hours[@hours.length - 1] + 1
     $tr = $('<tr class="trailing-row"></tr>').appendTo($el)
-    $("<td>#{twelveHourTime(endHour)}</td>").appendTo($tr)
+    $("<td><span>#{twelveHourTime(endHour)}</span></td>").appendTo($tr)
     null
 
   forCells: (fromCell, toCell, fxn) ->
