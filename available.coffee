@@ -159,8 +159,8 @@ class Available
     @clearActive()
 
     xForDayId = {}
-    for {id}, x in @days
-      xForDayId[id] = x
+    for {dayId}, x in @days
+      xForDayId[dayId] = x
 
     for {dayId, startHour, endHour} in availableIntervals
       x = xForDayId[dayId]
