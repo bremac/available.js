@@ -37,6 +37,8 @@ class Available
     @addBody(@$el)
     @addFooter(@$el)
 
+    @bindEvents()
+
     $parent.append(@$el)
 
   addHeader: ($el) ->
@@ -57,12 +59,35 @@ class Available
       $("<td><span>#{twelveHourTime(startHour)}</span></td>").appendTo($tr)
 
       for _, x in DAYS
-        cell =
-          $el: $("<td></td>").appendTo($tr)
-          x: x
-          startHour: startHour
-          isActive: false
+        @cells[x] ?= {}
+        @cells[x][startHour] = {
+          $el: $("<td></td>").appendTo($tr),
+          x: x,
+          startHour: startHour,
+          isActive: false,
+        }
 
+    null
+
+  addFooter: ($el) ->
+    endHour = @hours[@hours.length - 1] + 1
+    $tr = $('<tr class="trailing-row"></tr>').appendTo($el)
+    $("<td><span>#{twelveHourTime(endHour)}</span></td>").appendTo($tr)
+    null
+
+  bindEvents: () ->
+    $(document).mouseup (e) =>
+      if @activeCell != null
+        @clearTentative()
+        @activeCell = null
+
+    $(document).keydown (e) =>
+      if e.keyCode == ESCAPE_KEYCODE and @activeCell != null
+        @clearTentative()
+        @activeCell = null
+
+    for _, column of @cells
+      for _, cell of column
         do (cell) =>
           cell.$el.mousedown (e) =>
             @activeCell = cell
@@ -79,25 +104,6 @@ class Available
             if @activeCell != null
               @toggleCellsTentative(@activeCell, cell)
 
-        @cells[x] ?= {}
-        @cells[x][startHour] = cell
-
-    $(document).mouseup (e) =>
-      if @activeCell != null
-        @clearTentative()
-        @activeCell = null
-
-    $(document).keydown (e) =>
-      if e.keyCode == ESCAPE_KEYCODE and @activeCell != null
-        @clearTentative()
-        @activeCell = null
-
-    null
-
-  addFooter: ($el) ->
-    endHour = @hours[@hours.length - 1] + 1
-    $tr = $('<tr class="trailing-row"></tr>').appendTo($el)
-    $("<td><span>#{twelveHourTime(endHour)}</span></td>").appendTo($tr)
     null
 
   forCells: (fromCell, toCell, fxn) ->
@@ -154,10 +160,11 @@ class Available
       for startHour in @hours
         cell = @cells[x][startHour]
         if lastInterval == null and cell.isActive
-          lastInterval =
-            dayId: dayId
-            startHour: startHour
-            endHour: startHour + 1
+          lastInterval = {
+            dayId: dayId,
+            startHour: startHour,
+            endHour: startHour + 1,
+          }
         else if lastInterval != null and cell.isActive
           lastInterval.endHour += 1
         else if lastInterval != null and not cell.isActive
