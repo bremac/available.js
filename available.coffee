@@ -58,11 +58,11 @@ class Available
 
       $("<td><span>#{twelveHourTime(startHour)}</span></td>").appendTo($tr)
 
-      for _, x in DAYS
-        @cells[x] ?= {}
-        @cells[x][startHour] = {
+      for _, column in DAYS
+        @cells[column] ?= {}
+        @cells[column][startHour] = {
           $el: $("<td></td>").appendTo($tr),
-          x: x,
+          column: column,
           startHour: startHour,
           isActive: false,
         }
@@ -107,9 +107,9 @@ class Available
     null
 
   forCells: (fromCell, toCell, fxn) ->
-    for x in [fromCell.x .. toCell.x]
+    for column in [fromCell.column .. toCell.column]
       for startHour in [fromCell.startHour .. toCell.startHour]
-        fxn(@cells[x][startHour])
+        fxn(@cells[column][startHour])
     null
 
   clearTentative: () ->
@@ -154,11 +154,11 @@ class Available
 
   serialize: () ->
     availableIntervals = []
-    for {dayId}, x in @days
+    for {dayId}, column in @days
       lastInterval = null
 
       for startHour in @hours
-        cell = @cells[x][startHour]
+        cell = @cells[column][startHour]
         if lastInterval == null and cell.isActive
           lastInterval = {
             dayId: dayId,
@@ -180,14 +180,14 @@ class Available
     @clearTentative()
     @clearActive()
 
-    xForDayId = {}
-    for {dayId}, x in @days
-      xForDayId[dayId] = x
+    columnForDayId = {}
+    for {dayId}, column in @days
+      columnForDayId[dayId] = column
 
     for {dayId, startHour, endHour} in availableIntervals
-      x = xForDayId[dayId]
+      column = columnForDayId[dayId]
       for hour in [startHour ... endHour]
-        cell = @cells[x][hour]
+        cell = @cells[column][hour]
         @markActive(cell, true)
 
     null
