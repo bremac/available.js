@@ -13,6 +13,8 @@ DAYS = [
 
 HOURS = [0 .. 23]
 
+ESCAPE_KEYCODE = 27
+
 twelveHourTime = (hour) ->
   if hour % 12 == 0
     "12:00"
@@ -62,12 +64,16 @@ class Available
           isActive: false
 
         do (cell) =>
-          cell.$el.click (e) =>
-            if @activeCell == null
-              @activeCell = cell
-            else
+          cell.$el.mousedown (e) =>
+            @activeCell = cell
+            e.originalEvent.preventDefault()
+
+          cell.$el.mouseup (e) =>
+            if @activeCell != null
+              @clearTentative()
               @toggleCells(@activeCell, cell)
               @activeCell = null
+              return false
 
           cell.$el.mousemove (e) =>
             if @activeCell != null
@@ -76,8 +82,13 @@ class Available
         @cells[x] ?= {}
         @cells[x][startHour] = cell
 
+    $(document).mouseup (e) =>
+      if @activeCell != null
+        @clearTentative()
+        @activeCell = null
+
     $(document).keydown (e) =>
-      if e.keyCode == 27 and @activeCell != null
+      if e.keyCode == ESCAPE_KEYCODE and @activeCell != null
         @clearTentative()
         @activeCell = null
 
@@ -112,7 +123,6 @@ class Available
     null
 
   toggleCells: (fromCell, toCell) ->
-    @clearTentative()
     isNowActive = not fromCell.isActive
 
     @forCells fromCell, toCell, (cell) =>
