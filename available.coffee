@@ -1,7 +1,7 @@
 #
 #
 
-DAYS = [
+DEFAULT_DAYS = [
   {name: "Sun", dayId: 0},
   {name: "Mon", dayId: 1},
   {name: "Tue", dayId: 2},
@@ -11,7 +11,7 @@ DAYS = [
   {name: "Sat", dayId: 6},
 ]
 
-HOURS = [0 .. 23]
+DEFAULT_HOURS = [0 .. 23]
 
 ESCAPE_KEYCODE = 27
 
@@ -25,8 +25,8 @@ twelveHourTime = (hour) ->
 class Available
   constructor: (options) ->
     {$parent, @days, @hours, @onChanged} = options
-    @days ?= DAYS
-    @hours ?= HOURS
+    @days ?= DEFAULT_DAYS
+    @hours ?= DEFAULT_HOURS
     @onChanged ?= null
 
     @cells = {}
@@ -58,7 +58,7 @@ class Available
 
       $("<td><span>#{twelveHourTime(startHour)}</span></td>").appendTo($tr)
 
-      for _, column in DAYS
+      for _, column in @days
         @cells[column] ?= {}
         @cells[column][startHour] = {
           $el: $("<td></td>").appendTo($tr),
