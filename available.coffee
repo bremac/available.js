@@ -58,10 +58,14 @@ class Available
 
       $("<td><span>#{twelveHourTime(startHour)}</span></td>").appendTo($tr)
 
-      for _, column in @days
+      for {dayId}, column in @days
+        $td = $("<td></td>")
+        $td.addClass("day-#{dayId} hour-#{startHour}")
+        $td.appendTo($tr)
+
         @cells[column] ?= {}
         @cells[column][startHour] = {
-          $el: $("<td></td>").appendTo($tr),
+          $el: $td,
           column: column,
           startHour: startHour,
           isActive: false,
