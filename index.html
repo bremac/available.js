@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <link rel="stylesheet" type="text/css" href="available.css">
+    <style type="text/css">
+      body {
+        padding: 0;
+        margin: 2em 0 0 0;
+        margin-left: auto;
+        margin-right: auto;
+        width: 400px;
+      }
+    </style>
+    <script src="jquery-1.10.1.min.js"></script>
+    <script src="available.js"></script>
+    <script text="text/javascript">
+      $(function () {
+        var hours = [6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20];
+        var available = new Available({
+          "$parent": $("body"),
+          hours: hours,
+          onChanged: function (availableIntervals) {
+            alert(JSON.stringify(availableIntervals));
+          }
+        });
+        available.deserialize([
+          {dayId: 2, startHour: 10, endHour: 17},
+          {dayId: 3, startHour: 10, endHour: 13},
+          {dayId: 3, startHour: 14, endHour: 17},
+          {dayId: 4, startHour: 14, endHour: 17}
+        ]);
+      });
+    </script>
+  </head>
+  <body>
+  </body>
+</html>
