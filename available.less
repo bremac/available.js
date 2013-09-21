@@ -2,11 +2,14 @@
 @font-family: Helvetica, Arial, sans-serif, sans;
 @font-color: #666;
 @border-color: #ccc;
-@cell-hover-color: #eee;
-@row-hover-color: #f9f9f9;
+@cell-hover-color: #fcf6ca;
+@row-hover-color: #fefbe6;
 @noon-color: #888;
-@cell-available-color: #FCF6CA;
-@cell-tentative-color: #FEFBE6;
+@cell-hover-color: #cae4ff;
+@cell-marked-color: #e4f1ff;
+@cell-addition-color: #f5f9ff;
+@cell-marked-hover-color: #ffffb6;
+@cell-removal-color: #ffffd3;
 
 .no-select {
     -webkit-touch-callout: none;
@@ -20,9 +23,6 @@
 table.available {
     border-collapse: collapse;
 
-    tr:hover {
-        background: @row-hover-color;
-    }
     th, td {
         padding: 0;
         margin: 0;
@@ -31,51 +31,46 @@ table.available {
         font-size: 13px;
         color: @font-color;
         line-height: 14px;
-        /* height: 16px; */
         width: 50px;
         cursor: default;
         .no-select;
     }
-    td {
+    .cell {
         border: 1px solid @border-color;
+
+        &:hover {
+            background: @cell-hover-color;
+        }
     }
     th {
         background: @background-color;
         padding-bottom: 4px;
     }
-    td:hover {
-        background: @cell-hover-color;
+    .marked-interval {
+        background: @cell-marked-color;
+
+        &:hover {
+            background: @cell-marked-hover-color;
+        }
     }
-    .available-interval {
-        background: @cell-available-color;
+    .tentative-addition {
+        background: @cell-addition-color;
     }
-    .tentative-interval {
-        background: @cell-tentative-color;
+    .tentative-removal {
+        background: @cell-removal-color;
     }
-    .tentative-interval:hover {
-        background: @cell-available-color;
-    }
-    .available-interval.tentative-interval:hover {
-        background: @background-color;
-    }
-    .pre-noon td {
-        border-bottom-color: @noon-color;
-    }
-    .post-noon td {
-        border-top-color: @noon-color;
-    }
-    td:first-child {
+    .label {
         border: 1px solid @background-color;
         border-right: 1px solid @border-color;
         background: @background-color;
         text-align: center;
     }
-    td:first-child span {
+    .label span {
         position: relative;
         top: -9px;
         font-size: 10px;
     }
-    td:first-child:hover {
+    .label:hover {
         background: @background-color;
     }
     .trailing-row td {

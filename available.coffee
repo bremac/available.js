@@ -1,6 +1,8 @@
 #
 #
 
+ESCAPE_KEYCODE = 27
+
 DEFAULT_DAYS = [
   {name: "Sun", dayId: 0},
   {name: "Mon", dayId: 1},
@@ -11,22 +13,29 @@ DEFAULT_DAYS = [
   {name: "Sat", dayId: 6},
 ]
 
-DEFAULT_HOURS = [0 .. 23]
+DEFAULT_TIMES = (i * 30 for i in [17 .. 33])
 
-ESCAPE_KEYCODE = 27
 
-twelveHourTime = (hour) ->
-  if hour % 12 == 0
-    "12:00"
-  else
-    "#{hour % 12}:00"
+timeFromMinuteOfDay = (minuteOfDay) ->
+  hour = Math.floor(minuteOfDay / 60)
+  minute = minuteOfDay % 60
+  [hour, minute]
+
+
+twelveHourTime = (hour, minute) ->
+  minuteString = "00#{minute}".slice(-2)
+  hourString = if hour % 12 == 0 then "12" else "#{hour % 12}"
+  "#{hourString}:#{minuteString}"
 
 
 class Available
   constructor: (options) ->
-    {$parent, @days, @hours, @onChanged} = options
+    {$parent, @days, times, @onChanged} = options
     @days ?= DEFAULT_DAYS
-    @hours ?= DEFAULT_HOURS
+    times ?= DEFAULT_TIMES
+    @allTimes = times
+    @times = times[0...-1]
+    @lastTime = times[times.length - 1]
     @onChanged ?= null
 
     @cells = {}
@@ -48,35 +57,37 @@ class Available
     null
 
   addBody: ($el) ->
-    for startHour in @hours
+    for startTime in @times
       $tr = $("<tr></tr>").appendTo($el)
 
-      if startHour == 11
-        $tr.addClass("pre-noon")
-      if startHour == 12
-        $tr.addClass("post-noon")
+      [hour, minute] = timeFromMinuteOfDay(startTime)
 
-      $("<td><span>#{twelveHourTime(startHour)}</span></td>").appendTo($tr)
+      $label = $("<td><span>#{twelveHourTime(hour, minute)}</span></td>")
+      $label.addClass("label hour-#{hour} minute-#{minute}")
+      $label.appendTo($tr)
 
       for {dayId}, column in @days
         $td = $("<td></td>")
-        $td.addClass("day-#{dayId} hour-#{startHour}")
+        $td.addClass("cell day-#{dayId} hour-#{hour} minute-#{minute}")
         $td.appendTo($tr)
 
         @cells[column] ?= {}
-        @cells[column][startHour] = {
+        @cells[column][startTime] = {
           $el: $td,
           column: column,
-          startHour: startHour,
+          startTime: startTime,
           isActive: false,
         }
 
     null
 
   addFooter: ($el) ->
-    endHour = @hours[@hours.length - 1] + 1
+    [hour, minute] = timeFromMinuteOfDay(@lastTime)
     $tr = $('<tr class="trailing-row"></tr>').appendTo($el)
-    $("<td><span>#{twelveHourTime(endHour)}</span></td>").appendTo($tr)
+    # TODO: Factor this out
+    $label = $("<td><span>#{twelveHourTime(hour, minute)}</span></td>")
+    $label.addClass("label hour-#{hour} minute-#{minute}")
+    $label.appendTo($tr)
     null
 
   bindEvents: () ->
@@ -111,17 +122,26 @@ class Available
     null
 
   forCells: (fromCell, toCell, fxn) ->
+    fromTime = fromCell.startTime
+    toTime = toCell.startTime
+
+    if toTime < fromTime
+      [fromTime, toTime] = [toTime, fromTime]
+
     for column in [fromCell.column .. toCell.column]
-      for startHour in [fromCell.startHour .. toCell.startHour]
-        fxn(@cells[column][startHour])
+      for _, cell of @cells[column]
+        if fromTime <= cell.startTime <= toTime
+          fxn(cell)
+
     null
 
   clearTentative: () ->
-    @$el.find('.tentative-interval').removeClass('tentative-interval')
+    tentativeClasses = 'tentative tentative-addition tentative-removal'
+    @$el.find('.tentative').removeClass(tentativeClasses)
     null
 
   clearActive: () ->
-    @$el.find('.available-interval').removeClass('available-interval')
+    @$el.find('.marked-interval').removeClass('marked-interval')
     for _, column of @cells
       for _, cell of column
         cell.isActive = false
@@ -129,7 +149,7 @@ class Available
 
   markActive: (cell, isNowActive) ->
     cell.isActive = isNowActive
-    cell.$el.toggleClass('available-interval', isNowActive)
+    cell.$el.toggleClass('marked-interval', isNowActive)
     null
 
   toggleCells: (fromCell, toCell) ->
@@ -144,43 +164,50 @@ class Available
   toggleCellsTentative: (fromCell, toCell) ->
     @clearTentative()
     isNowActive = not fromCell.isActive
+    tentativeStateClass = if isNowActive
+      "tentative-addition"
+    else
+      "tentative-removal"
+    tentativeClass = "tentative #{tentativeStateClass}"
 
     @forCells fromCell, toCell, (cell) ->
-      cell.$el.addClass('tentative-interval')
+      cell.$el.addClass(tentativeClass)
     null
 
   triggerChanged: () ->
     if @onChanged == null
       return
-    availableIntervals = @serialize()
-    @onChanged(availableIntervals)
+    markedIntervals = @serialize()
+    @onChanged(markedIntervals)
     null
 
   serialize: () ->
-    availableIntervals = []
+    markedIntervals = []
     for {dayId}, column in @days
       lastInterval = null
 
-      for startHour in @hours
-        cell = @cells[column][startHour]
+      for i in [0 ... @allTimes.length-1]
+        startTime = @allTimes[i]
+        endTime = @allTimes[i + 1]
+        cell = @cells[column][startTime]
         if lastInterval == null and cell.isActive
           lastInterval = {
             dayId: dayId,
-            startHour: startHour,
-            endHour: startHour + 1,
+            startTime: startTime,
+            endTime: endTime,
           }
         else if lastInterval != null and cell.isActive
-          lastInterval.endHour += 1
+          lastInterval.endTime = endTime
         else if lastInterval != null and not cell.isActive
-          availableIntervals.push(lastInterval)
+          markedIntervals.push(lastInterval)
           lastInterval = null
 
       if lastInterval != null
-        availableIntervals.push(lastInterval)
+        markedIntervals.push(lastInterval)
 
-    availableIntervals
+    markedIntervals
 
-  deserialize: (availableIntervals) ->
+  deserialize: (markedIntervals) ->
     @clearTentative()
     @clearActive()
 
@@ -188,11 +215,12 @@ class Available
     for {dayId}, column in @days
       columnForDayId[dayId] = column
 
-    for {dayId, startHour, endHour} in availableIntervals
+    for {dayId, startTime, endTime} in markedIntervals
       column = columnForDayId[dayId]
-      for hour in [startHour ... endHour]
-        cell = @cells[column][hour]
-        @markActive(cell, true)
+      for time in @times
+        if startTime <= time < endTime
+          cell = @cells[column][time]
+          @markActive(cell, true)
 
     null
 

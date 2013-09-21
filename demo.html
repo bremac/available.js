@@ -15,19 +15,17 @@
     <script src="available.js"></script>
     <script text="text/javascript">
       $(function () {
-        var hours = [6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20];
         var available = new Available({
           "$parent": $("body"),
-          hours: hours,
           onChanged: function (availableIntervals) {
             alert(JSON.stringify(availableIntervals));
           }
         });
         available.deserialize([
-          {dayId: 2, startHour: 10, endHour: 17},
-          {dayId: 3, startHour: 10, endHour: 13},
-          {dayId: 3, startHour: 14, endHour: 17},
-          {dayId: 4, startHour: 14, endHour: 17}
+          {dayId: 2, startTime: 10 * 60, endTime: 16 * 60},
+          {dayId: 3, startTime: 10 * 60, endTime: 13 * 60},
+          {dayId: 3, startTime: 14 * 60, endTime: 16 * 60},
+          {dayId: 4, startTime: 14 * 60, endTime: 16 * 60}
         ]);
       });
     </script>
