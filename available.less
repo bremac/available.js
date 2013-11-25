@@ -37,10 +37,6 @@ table.available {
     }
     .cell {
         border: 1px solid @border-color;
-
-        &:hover {
-            background: @cell-hover-color;
-        }
     }
     th {
         background: @background-color;
@@ -49,10 +45,6 @@ table.available {
     }
     .marked-interval {
         background: @cell-marked-color;
-
-        &:hover {
-            background: @cell-marked-hover-color;
-        }
     }
     .tentative-addition {
         background: @cell-addition-color;
@@ -76,5 +68,14 @@ table.available {
     }
     .trailing-row td {
         border: @background-color;
+    }
+
+    &.enabled {
+        .cell:hover {
+            background: @cell-hover-color;
+        }
+        .marked-interval:hover {
+            background: @cell-marked-hover-color;
+        }
     }
 }

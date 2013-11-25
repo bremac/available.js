@@ -30,9 +30,10 @@ twelveHourTime = (hour, minute) ->
 
 class Available
   constructor: (options) ->
-    {$parent, @days, times, @onChanged} = options
+    {$parent, @days, times, @onChanged, disabled} = options
     @days ?= DEFAULT_DAYS
     times ?= DEFAULT_TIMES
+    disabled ?= false
     @allTimes = times
     @times = times[0...-1]
     @lastTime = times[times.length - 1]
@@ -46,7 +47,9 @@ class Available
     @addBody(@$el)
     @addFooter(@$el)
 
-    @bindEvents()
+    if !disabled
+      @$el.addClass('enabled')
+      @bindEvents()
 
     $parent.append(@$el)
 
